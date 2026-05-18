@@ -1,15 +1,15 @@
-﻿using System;
+using System;
 using System.Windows.Input;
 
 namespace Dienstplaner.Helpers
 {
     public class RelayCommand : ICommand
     {
-        private Action<object> _execute;
+        private readonly Action<object> _execute;
 
         public RelayCommand(Action<object> execute)
         {
-            _execute = execute;
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         }
 
         public bool CanExecute(object parameter)
@@ -22,6 +22,10 @@ namespace Dienstplaner.Helpers
             _execute(parameter);
         }
 
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
     }
 }
