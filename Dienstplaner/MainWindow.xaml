@@ -1,95 +1,84 @@
-﻿<Window x:Class="Dienstplaner.MainWindow"
+<Window x:Class="Dienstplaner.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Dienstplaner"
-        Height="750"
-        Width="1200">
+        Title="Professioneller Dienstplaner"
+        Height="850"
+        Width="1280">
 
-    <Grid Margin="10">
+    <Grid Margin="12">
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- MITARBEITER -->
-        <StackPanel Orientation="Horizontal" Margin="5">
+        <GroupBox Header="Mitarbeiterverwaltung" Margin="0,0,0,8">
+            <Grid Margin="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="220"/>
+                </Grid.ColumnDefinitions>
 
-            <TextBox Width="200"
-                     Margin="5"
-                     Text="{Binding NeuerMitarbeiterName, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Grid.Column="0" Margin="5" Text="{Binding NeuerMitarbeiterName, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Grid.Column="1" Margin="5" Text="{Binding NeuerMitarbeiterQualifikation, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Grid.Column="2" Margin="5" Text="{Binding NeuesMitarbeiterWochenlimit, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Grid.Column="3" Margin="5" Content="Mitarbeiter hinzufügen" Command="{Binding MitarbeiterHinzufuegenCommand}"/>
+            </Grid>
+        </GroupBox>
 
-            <Button Content="Mitarbeiter hinzufügen"
-                    Width="180"
-                    Margin="5"
-                    Command="{Binding MitarbeiterHinzufuegenCommand}"/>
+        <GroupBox Header="Schichtverwaltung" Grid.Row="1" Margin="0,0,0,8">
+            <Grid Margin="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="220"/>
+                </Grid.ColumnDefinitions>
 
-        </StackPanel>
+                <TextBox Grid.Column="0" Margin="5" Text="{Binding NeueSchichtName, UpdateSourceTrigger=PropertyChanged}"/>
+                <DatePicker Grid.Column="1" Margin="5" SelectedDate="{Binding NeueSchichtStart}"/>
+                <DatePicker Grid.Column="2" Margin="5" SelectedDate="{Binding NeueSchichtEnde}"/>
+                <TextBox Grid.Column="3" Margin="5" Text="{Binding NeueSchichtKapazitaet, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Grid.Column="4" Margin="5" Text="{Binding NeueSchichtQualifikation, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Grid.Column="5" Margin="5" Content="Schicht hinzufügen" Command="{Binding SchichtHinzufuegenCommand}"/>
+            </Grid>
+        </GroupBox>
 
-        <!-- SCHICHT -->
-        <StackPanel Orientation="Horizontal" Margin="5" Grid.Row="1">
+        <GroupBox Header="Zuweisung" Grid.Row="2" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Margin="8">
+                <ComboBox Width="320" Margin="5" ItemsSource="{Binding MitarbeiterListe}" DisplayMemberPath="Name" SelectedItem="{Binding AusgewaehlterMitarbeiter}"/>
+                <ComboBox Width="320" Margin="5" ItemsSource="{Binding SchichtListe}" DisplayMemberPath="Name" SelectedItem="{Binding AusgewaehlteSchicht}"/>
+                <Button Content="Zuweisen" Width="120" Margin="5" Command="{Binding ZuweisenCommand}"/>
+            </StackPanel>
+        </GroupBox>
 
-            <TextBox Width="200"
-                     Margin="5"
-                     Text="{Binding NeueSchichtName, UpdateSourceTrigger=PropertyChanged}"/>
+        <Border Grid.Row="3" Background="#FFF2F2F2" BorderBrush="#FFD8D8D8" BorderThickness="1" Padding="10" Margin="0,0,0,8">
+            <TextBlock Text="{Binding StatusNachricht}" FontWeight="SemiBold"/>
+        </Border>
 
-            <Button Content="Schicht hinzufügen"
-                    Width="180"
-                    Margin="5"
-                    Command="{Binding SchichtHinzufuegenCommand}"/>
-
-        </StackPanel>
-
-        <!-- ZUWEISUNG -->
-        <StackPanel Orientation="Horizontal" Margin="5" Grid.Row="2">
-
-            <ComboBox Width="220"
-                      Margin="5"
-                      ItemsSource="{Binding MitarbeiterListe}"
-                      DisplayMemberPath="Name"
-                      SelectedItem="{Binding AusgewaehlterMitarbeiter}"/>
-
-            <ComboBox Width="220"
-                      Margin="5"
-                      ItemsSource="{Binding SchichtListe}"
-                      DisplayMemberPath="Name"
-                      SelectedItem="{Binding AusgewaehlteSchicht}"/>
-
-            <Button Content="Zuweisen"
-                    Width="120"
-                    Margin="5"
-                    Command="{Binding ZuweisenCommand}"/>
-
-        </StackPanel>
-
-        <!-- ANSICHT -->
-        <GroupBox Header="Dienstplan" Grid.Row="3" Margin="5">
-
+        <GroupBox Header="Dienstplan" Grid.Row="4">
             <ListBox ItemsSource="{Binding SchichtListe}">
-
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-
-                        <StackPanel Margin="5">
-
-                            <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding Start}"/>
-                            <TextBlock Text="{Binding Ende}"/>
-
+                        <StackPanel Margin="6">
+                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
+                            <TextBlock Text="{Binding Start, StringFormat=Start: {0:dd.MM.yyyy HH:mm}}"/>
+                            <TextBlock Text="{Binding Ende, StringFormat=Ende: {0:dd.MM.yyyy HH:mm}}"/>
+                            <TextBlock Text="{Binding BenoetigteMitarbeiter, StringFormat=Benötigte Mitarbeiter: {0}}"/>
+                            <TextBlock Text="{Binding BenoetigteQualifikation, StringFormat=Qualifikation: {0}}"/>
                             <TextBlock Text="Mitarbeiter:" Margin="0,5,0,0"/>
-
                             <ItemsControl ItemsSource="{Binding MitarbeiterNamen}"/>
-
                         </StackPanel>
-
                     </DataTemplate>
-
                 </ListBox.ItemTemplate>
-
             </ListBox>
-
         </GroupBox>
 
     </Grid>
