@@ -1,10 +1,11 @@
+using ShiftPilot.API.Extensions;
+using ShiftPilot.API.Middleware;
+using ShiftPilot.API.Services;
+using ShiftPilot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using ShiftPilot.Data;
-using ShiftPilot.API.Services;
-using ShiftPilot.API.Repositories;
 
 var builder = WebApplicationBuilder.CreateBuilder(args);
 
@@ -37,19 +38,19 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
-// Services
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IShiftService, ShiftService>();
-builder.Services.AddScoped<ISickLeaveService, SickLeaveService>();
-builder.Services.AddScoped<IShiftSwapService, ShiftSwapService>();
-builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
+// Memory Cache
+builder.Services.AddMemoryCache();
 
-// Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
-builder.Services.AddScoped<ISickLeaveRepository, SickLeaveRepository>();
-builder.Services.AddScoped<IShiftSwapRepository, ShiftSwapRepository>();
-builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+// Rate Limiting
+builder.Services.AddCustomRateLimiting();
+
+// Application Services
+builder.Services.AddApplicationServices();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
+builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ICustomLogger, CustomLogger>();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -79,6 +80,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseRateLimiter();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
