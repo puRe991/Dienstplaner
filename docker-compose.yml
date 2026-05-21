@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourPassword123!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourPassword123!", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+      - "5001:443"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=ShiftPilotDB;User Id=sa;Password=YourPassword123;TrustServerCertificate=true;
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./certs:/app/certs
+
+volumes:
+  sqlserver_data:
